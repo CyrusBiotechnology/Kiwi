@@ -404,6 +404,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
+    'tcms.custom_pipeline.email_required',
+    'tcms.custom_pipeline.check_unique_email',
     'social_core.pipeline.social_auth.social_uid',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
@@ -411,6 +413,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
+    'tcms.custom_pipeline.initiate_defaults',
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
