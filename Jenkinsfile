@@ -3,7 +3,7 @@ node {
     checkout scm
   }
   stage("Build"){
-    sh "docker build . -t ${docker2.imageRef()}"
+    sh "docker build . -t ${docker2.autoPush()}"
   }
   
   stage ("Upload Image"){
