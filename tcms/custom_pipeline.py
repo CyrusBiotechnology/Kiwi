@@ -16,17 +16,17 @@ def email_required(strategy, details, backend, user=None, *args, **kwargs):
         return HttpResponseRedirect(reverse('tcms-login'))
 
 
-def check_unique_email(strategy, details, backend, user=None, *args, **kwargs):
-    try:
-        User.objects.get(email=details.get('email'))
-
-        messages.error(
-            strategy.request or backend.strategy.request,
-            _("A user with address %(email)s already exists") % {'email': details['email']}
-        )
-        return HttpResponseRedirect(reverse('tcms-login'))
-    except User.DoesNotExist:
-        pass
+# def check_unique_email(strategy, details, backend, user=None, *args, **kwargs):
+#     try:
+#         User.objects.get(email=details.get('email'))
+#
+#         messages.error(
+#             strategy.request or backend.strategy.request,
+#             _("A user with address %(email)s already exists") % {'email': details['email']}
+#         )
+#         return HttpResponseRedirect(reverse('tcms-login'))
+#     except User.DoesNotExist:
+#         pass
 
 
 def initiate_defaults(strategy, details, backend, user=None, *args, **kwargs):
