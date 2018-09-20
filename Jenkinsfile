@@ -11,6 +11,7 @@ node {
   }
   
   stage ("Deploy"){
+    NAMESPACE = k8s.getNamespaceFromBranch(env.BRANCH_NAME)
     if (env.BRANCH_NAME in ['rc']) {
       k8s.updateImageTag(NAMESPACE, docker2.imageTag(), 'gcr.io/cyrus-containers/kiwi', env.BRANCH_NAME)
     }
