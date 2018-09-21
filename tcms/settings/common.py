@@ -34,7 +34,7 @@ DATABASES = {
 
 # Administrators error report email settings
 ADMINS = [
-    # ('Your Name', 'your_email@example.com'),
+    ('Ryan Schaffer', 'ryan.schaffer@cyrusbio.com'),
 ]
 
 
@@ -318,7 +318,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Enable the administrator delete permission
 # In another word it's set the admin to super user or not.
-SET_ADMIN_AS_SUPERUSER = False
+SET_ADMIN_AS_SUPERUSER = True
 
 # Allows history_change_reason to be a TextField so we can
 # support a changelog-like feature! DO NOT EDIT b/c migrations
@@ -417,9 +417,9 @@ SOCIAL_AUTH_PIPELINE = (
     'tcms.custom_pipeline.initiate_defaults',
 )
 
-SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
-SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
-LOGIN_REDIRECT_URL = '//'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
+
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
