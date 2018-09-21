@@ -19,7 +19,6 @@ urlpatterns = [
         name='tcms-logout'),
 
     url('', include('social_django.urls', namespace='social')),
-    url('', include('django.contrib.auth.urls', namespace='auth')),
 
     url(r'^passwordreset/$', auth_views.PasswordResetView.as_view(),
         name='tcms-password_reset'),
