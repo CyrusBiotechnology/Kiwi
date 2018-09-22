@@ -32,11 +32,14 @@ stages:
 jobs:
   allow_failures:
     - env: CMD=pylint
+    - env: CMD=bandit_site_packages
 
   include:
     - stage: static_analysis
       env:
         - CMD=bandit
+
+    - { stage: static_analysis, env: CMD=bandit_site_packages, if: branch = master AND type = push }
 
     - stage: static_analysis
       if: branch = master AND type = push
@@ -48,7 +51,7 @@ jobs:
             name: "kiwitcms/Kiwi"
             description: "Open source test case management system"
           notification_email: info@kiwitcms.org
-          build_command: "--no-command --fs-capture-search ./"
+          build_command: "--no-command --fs-capture-search ./ --fs-capture-search /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages"
           branch_pattern: master
 
     - stage: static_analysis
@@ -60,24 +63,27 @@ jobs:
     - stage: testing
       env:
         - TEST_DB=MariaDB
-        - CMD=check
+        - CMD=test
       addons:
         mariadb: 10.1
 
     - stage: testing
+      if: branch = master AND type = push
       env:
         - TEST_DB=SQLite
-        - CMD=check
+        - CMD=test
 
     - stage: testing
+      if: branch = master AND type = push
       env:
         - TEST_DB=MySQL
-        - CMD=check
+        - CMD=test
 
     - stage: testing
+      if: branch = master AND type = push
       env:
         - TEST_DB=Postgres
-        - CMD=check
+        - CMD=test
       addons:
         postgresql: 9.5
 

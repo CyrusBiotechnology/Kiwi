@@ -156,27 +156,21 @@ def create(values):
             >>> values = {'build': 384,
                 'manager': 137,
                 'plan': 137,
-                'product': 61,
-                'product_version': 93,
                 'summary': 'Testing XML-RPC for TCMS',
             }
             >>> TestRun.create(values)
     """
-    if not values.get('product'):
-        raise ValueError('Value of product is required')
     # TODO: XMLRPC only accept HH:MM:SS rather than DdHhMm
-
     if values.get('estimated_time'):
         values['estimated_time'] = parse_duration(
             values.get('estimated_time'))
 
     form = XMLRPCNewRunForm(values)
-    form.populate(product_id=values['product'])
+    form.assign_plan(values.get('plan'))
 
     if form.is_valid():
         test_run = TestRun.objects.create(
-            product_version=form.cleaned_data['product_version'],
-            stop_date=form.cleaned_data['status'] and datetime.now() or None,
+            product_version=form.cleaned_data['plan'].product_version,
             summary=form.cleaned_data['summary'],
             notes=form.cleaned_data['notes'],
             estimated_time=form.cleaned_data['estimated_time'],
@@ -185,15 +179,6 @@ def create(values):
             manager=form.cleaned_data['manager'],
             default_tester=form.cleaned_data['default_tester'],
         )
-
-        if form.cleaned_data['tag']:
-            tag_names = form.cleaned_data['tag']
-            if isinstance(tag_names, str):
-                tag_names = [c.strip() for c in tag_names.split(',') if c]
-
-            for tag_name in tag_names:
-                tag, _ = Tag.objects.get_or_create(name=tag_name)
-                test_run.add_tag(tag=tag)
     else:
         raise ValueError(form_errors_to_list(form))
 
@@ -201,7 +186,7 @@ def create(values):
 
 
 @rpc_method(name='TestRun.filter')
-def filter(query={}):  # pylint: disable=invalid-name
+def filter(query=None):  # pylint: disable=redefined-builtin
     """
     .. function:: XML-RPC TestRun.filter(query)
 
@@ -212,6 +197,10 @@ def filter(query={}):  # pylint: disable=invalid-name
         :return: List of serialized :class:`tcms.testruns.models.TestRun` objects
         :rtype: list(dict)
     """
+
+    if query is None:
+        query = {}
+
     return TestRun.to_xmlrpc(query)
 
 
@@ -243,49 +232,50 @@ def update(run_id, values):
         form.populate(product_id=values['product'])
 
     if form.is_valid():
-        test_run = TestRun.objects.get(pk=run_id)
-        if form.cleaned_data['plan']:
-            test_run.plan = form.cleaned_data['plan']
+        return _get_updated_test_run(run_id, values, form).serialize()
 
-        if form.cleaned_data['build']:
-            test_run.build = form.cleaned_data['build']
+    raise ValueError(form_errors_to_list(form))
 
-        if form.cleaned_data['manager']:
-            test_run.manager = form.cleaned_data['manager']
 
-        if 'default_tester' in values:
-            if values.get('default_tester') and \
-                    form.cleaned_data['default_tester']:
-                test_run.default_tester = form.cleaned_data['default_tester']
-            else:
-                test_run.default_tester = None
+def _get_updated_test_run(run_id, values, form):
+    test_run = TestRun.objects.get(pk=run_id)
+    if form.cleaned_data['plan']:
+        test_run.plan = form.cleaned_data['plan']
 
-        if form.cleaned_data['summary']:
-            test_run.summary = form.cleaned_data['summary']
+    if form.cleaned_data['build']:
+        test_run.build = form.cleaned_data['build']
 
-        if values.get('estimated_time') is not None:
-            test_run.estimated_time = form.cleaned_data['estimated_time']
+    if form.cleaned_data['manager']:
+        test_run.manager = form.cleaned_data['manager']
 
-        if form.cleaned_data['product_version']:
-            test_run.product_version = form.cleaned_data['product_version']
+    test_run.default_tester = None
 
-        if 'notes' in values:
-            if values['notes'] in (None, ''):
-                test_run.notes = values['notes']
-            if form.cleaned_data['notes']:
-                test_run.notes = form.cleaned_data['notes']
+    if form.cleaned_data['default_tester']:
+        test_run.default_tester = form.cleaned_data['default_tester']
 
-        if isinstance(form.cleaned_data['status'], int):
-            if form.cleaned_data['status']:
-                test_run.stop_date = datetime.now()
-            else:
-                test_run.stop_date = None
+    if form.cleaned_data['summary']:
+        test_run.summary = form.cleaned_data['summary']
 
-        test_run.save()
-    else:
-        raise ValueError(form_errors_to_list(form))
+    if values.get('estimated_time') is not None:
+        test_run.estimated_time = form.cleaned_data['estimated_time']
 
-    return test_run.serialize()
+    if form.cleaned_data['product_version']:
+        test_run.product_version = form.cleaned_data['product_version']
+
+    if 'notes' in values:
+        if values['notes'] in (None, ''):
+            test_run.notes = values['notes']
+        if form.cleaned_data['notes']:
+            test_run.notes = form.cleaned_data['notes']
+
+    test_run.stop_date = None
+
+    if isinstance(form.cleaned_data['status'], int) and \
+       form.cleaned_data['status']:
+        test_run.stop_date = datetime.now()
+
+    test_run.save()
+    return test_run
 
 
 @permissions_required('testruns.add_envrunvaluemap')
