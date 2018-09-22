@@ -392,9 +392,9 @@ PUBLIC_VIEWS.extend([
     'social_django.views.disconnect',
 ])
 
-AUTHENTICATION_BACKENDS = (
-    ['social_core.backends.google.GoogleOAuth2']
-)
+# AUTHENTICATION_BACKENDS = (
+#     ['social_core.backends.google.GoogleOAuth2']
+# )
 
 SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.profile',
