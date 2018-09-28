@@ -12,7 +12,7 @@ import tcms
 
 
 # Set to False for production
-DEBUG = True
+DEBUG = False
 
 
 # Make this unique, and don't share it with anybody.
@@ -42,9 +42,13 @@ ADMINS = [
 # DEFAULT_FROM_EMAIL must be defined if you want Kiwi TCMS to send emails.
 # You also need to configure the email backend. For more information see:
 # https://docs.djangoproject.com/en/2.0/topics/email/#quick-example
-DEFAULT_FROM_EMAIL = 'kiwi@example.com'
+DEFAULT_FROM_EMAIL = 'kiwi@mg.cyrusbio.com'
 EMAIL_SUBJECT_PREFIX = '[Kiwi-TCMS] '
-
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~ You may want to override the following settings as well
@@ -420,6 +424,4 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
 
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
