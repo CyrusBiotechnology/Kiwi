@@ -52,8 +52,17 @@
 				<a class="link_tested_by">None</a>
 				{% endif %}
 			</td>
-			<td>
+			<td class="expandable">
 				{% if assignee %}
+                    <form action="{% url "testruns-update_assignee" %}" method="post">
+                        <input type="hidden" value="{{ test_case_run.pk }}" name="id">
+                        <select class="form-control selectpicker" name="assignee" id="assignee" onchange="this.form.submit()">
+                            {% for option in testers %}
+                                <option value="{{ option.username }}" {% if option.username == assignee %} selected="selected" {%  endif %}>{{ option.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
 				<a href="{% url "tcms-profile" assignee %}" class="link_assignee">{{ assignee }}</a>
 				{% else %}None{% endif %}
 			</td>
