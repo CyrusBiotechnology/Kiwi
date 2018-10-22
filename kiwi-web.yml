@@ -37,7 +37,7 @@ spec:
         tier: frontend
     spec:
       containers:
-        - image: gcr.io/cyrus-playground/kiwitcms/kiwi:latest
+        - image: gcr.io/cyrus-playground/kiwitcms/kiwi:assignee
           name: kiwi-web
           imagePullPolicy: Always
           env:
@@ -53,13 +53,13 @@ spec:
               value: kiwi
             - name: GOOGLE_OAUTH2_KEY
               valueFrom:
-                secretRef:
-                  name: googleAuth
+                secretKeyRef:
+                  name: google-auth
                   key: key
             - name: GOOGLE_OAUTH2_SECRET
               valueFrom:
-                secretRef:
-                  name: googleAuth
+                secretKeyRef:
+                  name: google-auth
                   key: secret
           ports:
             - containerPort: 80
