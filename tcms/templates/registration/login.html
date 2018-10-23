@@ -36,7 +36,7 @@
         </div>
       </form>
         <p><strong>-- OR --</strong></p>
-        <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+        <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"><img src="../../static/images/btn_google_signin_light_normal_web.png"></a>
 
       {% block custom_login %}
       {% endblock %}
