@@ -60,16 +60,22 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Create.on_load);
 					</div>
 					<div class="data_row">
 						<label>Automated</label>
-						{{ form.is_automated }}
-                        <div class="automatedlist">
-						{{ form.is_automated_proposed }}
-						{{ form.is_automated_proposed.label }}
-						</div>
+                        <select name="{{ form.is_automated.name }}">
+                            {% for choice in form.is_automated.field.choices %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                            {% endfor %}
+                        </select>
                         <div class="errors">
 							{{ form.is_automated.errors }}
-							{{ form.is_automated_proposed.errors }}
 						</div>
 					</div>
+                    <div class="data_row">
+                        <label>{{ form.is_automated_proposed.label }}</label>
+                        {{ form.is_automated_proposed }}
+                        <div class="errors">
+							{{ form.is_automated_proposed.errors }}
+						</div>
+                    </div>
 					<div class="data_row">
 						<label >Requirement</label>
 						{{ form.requirement }}
