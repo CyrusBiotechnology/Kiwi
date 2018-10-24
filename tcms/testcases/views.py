@@ -1311,7 +1311,7 @@ def category(request):
     return func()
 
 
-@permission_required('testcases.add_testcaseattachment')
+@permission_required('testcases.add_testcasecomponent')
 def attachment(request, case_id, template_name='case/attachment.html'):
     """Manage test case attachments"""
 
