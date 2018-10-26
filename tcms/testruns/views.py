@@ -38,7 +38,9 @@ from tcms.testruns.data import TestCaseRunDataMixin
 from tcms.testruns.forms import NewRunForm, SearchRunForm, BaseRunForm
 from tcms.testruns.models import TestRun, TestCaseRun, TestCaseRunStatus, EnvRunValueMap
 from tcms.issuetracker.types import IssueTrackerType
+import logging
 
+logger = logging.getLogger('slack')
 
 def save_env_properties(request, test_run):
     """

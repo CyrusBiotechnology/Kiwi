@@ -1,0 +1,8 @@
+{% extends django_slack %}
+{% load django_slack %}
+
+{% block text %}
+The following test case run for build {{ tc_run.build.name }} was assigned to {{ tc_run.assignee }}:
+    {{ tc_run.case.summary }} in {{ tc_run.run.summary }}
+    Please follow the link for details: https://rc-kiwi.dev.cyrusbio.com/run/{{ tc_run.run_id }}/#caserun_{{ tc_run.case_run_id }}
+{% endblock %}

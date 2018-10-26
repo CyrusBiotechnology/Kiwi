@@ -1,0 +1,7 @@
+{% extends django_slack %}
+{% load django_slack %}
+
+{% block text %}
+A new test case run has been assigned to you.
+    Please follow the link for details: https://rc-kiwi.dev.cyrusbio.com/run/{{ tc_run.run_id }}/#caserun_{{ tc_run.case_run_id }}
+{% endblock %}

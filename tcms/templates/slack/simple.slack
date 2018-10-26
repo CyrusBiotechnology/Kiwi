@@ -1,0 +1,6 @@
+{% extends django_slack %}
+{% load django_slack %}
+
+{% block text %}
+    Signal Recieved
+{% endblock %}
