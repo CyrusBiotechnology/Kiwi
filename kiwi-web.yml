@@ -37,7 +37,7 @@ spec:
         tier: frontend
     spec:
       containers:
-        - image: gcr.io/cyrus-playground/kiwitcms/kiwi:assignee
+        - image: gcr.io/cyrus-playground/kiwitcms/kiwi:latest
           name: kiwi-web
           imagePullPolicy: Always
           env:
