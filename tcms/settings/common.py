@@ -263,6 +263,7 @@ WSGI_APPLICATION = 'tcms.wsgi.application'
 INSTALLED_APPS = [
     'vinaigrette',
     'grappelli',
+    'django_slack',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -276,6 +277,7 @@ INSTALLED_APPS = [
     'modernrpc',
     'simple_history',
     'social_django',
+
 
     'tcms.core',
     'tcms.core.contrib.auth.apps.AppConfig',
@@ -370,8 +372,19 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        # 'slack': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.FileHandler',
+        #     'filename': '/Kiwi/slack.log'
+        #
+        # }
     },
     'loggers': {
+        # 'django': {
+        #     'handlers': ['slack'],
+        #     'level': 'DEBUG',
+        #     'propagate': True
+        # },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -424,4 +437,4 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
 
-
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')

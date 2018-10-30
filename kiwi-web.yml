@@ -61,6 +61,11 @@ spec:
                 secretKeyRef:
                   name: google-auth
                   key: secret
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-auth
+                  key: token
           ports:
             - containerPort: 80
             - containerPort: 443

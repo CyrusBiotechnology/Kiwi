@@ -1,0 +1,9 @@
+{% extends django_slack %}
+{% load django_slack %}
+{% block username %}Kiwi{% endblock %}
+{% block channel %}#testing{% endblock %}
+{% block text %}
+The following test case run for build {{ tc_run.build.name }} was assigned to {{ "<@"|add:tc_run.assignee.username|add:">"|escapeslack }}:
+    {{ tc_run.case.summary }} in {{ tc_run.run.summary }}
+    Please follow the link for details: https://{{ site.name }}/run/{{ tc_run.run_id }}/#caserun_{{ tc_run.case_run_id }}
+{% endblock %}

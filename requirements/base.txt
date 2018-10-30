@@ -1,4 +1,4 @@
-Django==2.1.1
+django==2.1.1
 django-attachments>=1.3
 django-contrib-comments
 django-glrm
@@ -13,3 +13,4 @@ Markdown
 python-bugzilla
 PyGithub
 social-auth-app-django
+django-slack

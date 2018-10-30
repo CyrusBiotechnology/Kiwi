@@ -38,7 +38,11 @@ from tcms.testruns.data import TestCaseRunDataMixin
 from tcms.testruns.forms import NewRunForm, SearchRunForm, BaseRunForm
 from tcms.testruns.models import TestRun, TestCaseRun, TestCaseRunStatus, EnvRunValueMap
 from tcms.issuetracker.types import IssueTrackerType
+from django_slack import slack_message
+from django.contrib.sites.models import Site
+import logging
 
+logger = logging.getLogger('slack')
 
 def save_env_properties(request, test_run):
     """
@@ -941,6 +945,13 @@ class UpdateAssigneeView(View):
             test_case_run = get_object_or_404(TestCaseRun, pk=int(object_id))
             test_case_run.assignee = user
             test_case_run.save()
+            site = Site.objects.get_current()
+
+            slack_message('slack/updated_testcaserun_assignee.slack',
+                          {
+                              'tc_run': test_case_run,
+                              'site': site,
+                           })
             return redirect('testruns-get', run_id=test_case_run.run_id)
 
         for caserun_pk in object_ids:
