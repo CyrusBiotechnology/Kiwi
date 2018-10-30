@@ -921,7 +921,7 @@ def get_caseruns_of_runs(runs, kwargs=None):
     return caseruns
 
 
-# @method_decorator(permission_required('testruns.change_testcaserun'), name='dispatch')
+@method_decorator(permission_required('testruns.change_testcaserun'), name='dispatch')
 class UpdateAssigneeView(View):
     """Updates TestCaseRun.assignee. Called from the front-end."""
 
