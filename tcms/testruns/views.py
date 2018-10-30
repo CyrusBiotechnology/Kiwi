@@ -38,6 +38,8 @@ from tcms.testruns.data import TestCaseRunDataMixin
 from tcms.testruns.forms import NewRunForm, SearchRunForm, BaseRunForm
 from tcms.testruns.models import TestRun, TestCaseRun, TestCaseRunStatus, EnvRunValueMap
 from tcms.issuetracker.types import IssueTrackerType
+from django_slack import slack_message
+from django.contrib.sites.models import Site
 import logging
 
 logger = logging.getLogger('slack')
@@ -919,7 +921,7 @@ def get_caseruns_of_runs(runs, kwargs=None):
     return caseruns
 
 
-@method_decorator(permission_required('testruns.change_testcaserun'), name='dispatch')
+# @method_decorator(permission_required('testruns.change_testcaserun'), name='dispatch')
 class UpdateAssigneeView(View):
     """Updates TestCaseRun.assignee. Called from the front-end."""
 
@@ -943,6 +945,13 @@ class UpdateAssigneeView(View):
             test_case_run = get_object_or_404(TestCaseRun, pk=int(object_id))
             test_case_run.assignee = user
             test_case_run.save()
+            site = Site.objects.get_current()
+
+            slack_message('slack/updated_testcaserun_assignee.slack',
+                          {
+                              'tc_run': test_case_run,
+                              'site': site,
+                           })
             return redirect('testruns-get', run_id=test_case_run.run_id)
 
         for caserun_pk in object_ids:

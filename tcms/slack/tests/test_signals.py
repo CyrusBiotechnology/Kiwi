@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from tcms.testruns.models import TestCaseRun
 from django.contrib.auth.models import User
+from django.test import Client
 
 
 class TestTestcaserunNotification(BaseCaseRun):
@@ -25,14 +26,13 @@ class TestTestcaserunNotification(BaseCaseRun):
 
         post_save.connect(handler)
 
-        user = User.objects.get(username='User2')
-        self.case_run_1.assignee = user
+        self.case_run_1.notes = "Updated notes"
         self.case_run_1.save()
 
         self.assertTrue(self.signal_was_called)
         django_slack.slack_message.assert_called_with(
             'slack/updated_testcaserun_assignee.slack',
-            {'foo': self.case_run_1}
+            {'tc_run': self.case_run_1}
         )
 
 
@@ -74,17 +74,18 @@ class TestAssigneeViewSignal(BaseCaseRun):
         super(TestAssigneeViewSignal, cls).setUpTestData()
 
     def test_update_assignee_view(self):
-        django_slack.slack_message = MagicMock()
+        # django_slack.slack_message = MagicMock()
         user = User.objects.get(username='User1')
         user.set_password('password')
         user.save()
-        self.client.login(username='User1', password='password')
-        foo = self.client.post(
+        c = Client()
+        c.force_login(user)
+        c.post(
             reverse('testruns-update_assignee'),
-            data={'id': 1, 'assignee': 'User2'})
+            data={'id': 1, 'assignee': 'User2'}, follow=True)
         django_slack.slack_message.assert_called_with(
             'slack/updated_testcaserun_assignee.slack',
-            {'foo': self.case_run_1}
+            {'tc_run': self.case_run_1}
         )
 
     def test_update_assigne_view_code(self):
@@ -97,7 +98,7 @@ class TestAssigneeViewSignal(BaseCaseRun):
 
         django_slack.slack_message.assert_called_with(
             'slack/updated_testcaserun_assignee.slack',
-            {'foo': self.case_run_1}
+            {'tc_run': self.case_run_1}
         )
 
 

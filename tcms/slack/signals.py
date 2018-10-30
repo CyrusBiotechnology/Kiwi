@@ -1,3 +1,7 @@
+"""
+This file is deprecated until the issue between docker and Django base signals is resolved
+"""
+
 from tcms.testruns.models import TestCaseRun
 import django_slack
 from django.db.models.signals import post_save
@@ -18,16 +22,12 @@ def handle_slack_notifications_post_testcaserun_save(sender, *args, **kwargs):
     """
     logger.info('Signal Received')
     template = None
-    if kwargs.get('created'):
-        template = 'slack/new_testcaserun.slack'
-    elif 'assignee' in kwargs.get('updated_fields', []):
+    if not kwargs.get('created'):
+        """
+        Filter out test runs when the are first created
+        TODO: Make receiving notifications on creation optional
+        """
         template = 'slack/updated_testcaserun_assignee.slack'
 
     if template:
         django_slack.slack_message(template, {'tc_run': kwargs.get('instance')})
-
-    try:
-        django_slack.slack_message('slack/simple.slack', {})
-    except Exception as err:
-        logger.error('Error sending slack message {0}'.format(err))
-

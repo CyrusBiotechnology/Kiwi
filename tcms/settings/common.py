@@ -4,7 +4,6 @@ import os.path
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.messages import constants as messages
-# from django_slack.backends import TestBackend
 import tcms
 
 
@@ -438,6 +437,4 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
 
-SLACK_TOKEN = 'xoxp-463297620803-463223564484-465340533255-d3b187259f4cbb845930fd0bd3306c01'
-# SLACK_BACKEND = TestBackend
-
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
