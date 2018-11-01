@@ -6,7 +6,7 @@
 <div class="container-fluid container-cards-pf">
 <div class="row">
     <div class="panel panel-default col-sm-12 col-md-5 col-lg-5" style="padding:0; margin-right:1%">
-        <div class="panel-heading"><strong>{% trans "Active Test Executions" %}</strong></div>
+        <div class="panel-heading"><strong>{% trans "Active Test Runs" %}</strong></div>
         <table class="table table-striped">
             <tbody>
             {% for test_run in last_15_test_runs %}
@@ -95,7 +95,7 @@
                             {% include "run/status_progress_patternfly.html" with stats=test_run.stats_caseruns_status %}
                         </td>
                         <td>
-                            <a href="{% url "testruns-get" test_run.run_id %}?assignee__email__startswith={{ user.username|iriencode }}">{{ test_run.summary }}</a>
+                            <a href="{% url "testruns-get" test_run.run_id %}?assignee__email__startswith={{ user.email|iriencode }}">{{ test_run.summary }}</a>
                             <div>{% trans "Started at" %} {{ test_run.start_date }}</div>
                         </td>
                     </tr>
@@ -109,7 +109,7 @@
                     Here are the latest {{ count }}.
                     {% endblocktrans %}
 
-                    <a href="{% url "testruns-search" %}?assignee__email__startswith={{ user.username|iriencode }}">
+                    <a href="{% url "testruns-search" %}?assignee__email__startswith={{ user.email|iriencode }}">
                         {% trans "SEE ALL" %}
                     </a>
                 {% else %}
