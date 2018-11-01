@@ -4,8 +4,9 @@
 
 {% block contents %}
 <div class="container-fluid container-cards-pf">
+<div class="row">
     <div class="panel panel-default col-sm-12 col-md-5 col-lg-5" style="padding:0; margin-right:1%">
-        <div class="panel-heading"><strong>{% trans "Test executions" %}</strong></div>
+        <div class="panel-heading"><strong>{% trans "Active Test Executions" %}</strong></div>
         <table class="table table-striped">
             <tbody>
             {% for test_run in last_15_test_runs %}
@@ -24,7 +25,7 @@
         <div class="panel-footer">
             {% if test_runs_count %}
                 {% blocktrans with total_count=test_runs_count count=last_15_test_runs|length %}
-                {{ total_count }} TestRun(s) assigned to you need to be executed.
+                {{ total_count }} TestRun(s) need to be executed.
                 Here are the latest {{ count }}.
                 {% endblocktrans %}
 
@@ -32,7 +33,7 @@
                     {% trans "SEE ALL" %}
                 </a>
             {% else %}
-                {% trans "There are no TestRun(s) assigned to you" %}
+                {% trans "There are active TestRuns" %}
             {% endif %}
         </div>
     </div> <!-- /panel -->
@@ -74,7 +75,7 @@
                 Here are the latest {{ count }}.
                 {% endblocktrans %}
 
-                <a href="{% url "plans-search" %}?author__username__startswith={{ user.username }}">
+                <a href="{% url "plans-search" %}?author__username__startswith={{ user.username| iriencode }}">
                     {% trans "SEE ALL" %}
                 </a>
             {% else %}
@@ -82,6 +83,42 @@
             {% endif %}
         </div>
     </div> <!-- /panel -->
+</div>
+    <div class="row">
+            <div class="panel panel-default col-sm-12 col-md-5 col-lg-5" style="padding:0; margin-right:1%">
+            <div class="panel-heading"><strong>{% trans "Test runs with cases assigned to you" %}</strong></div>
+            <table class="table table-striped">
+                <tbody>
+                {% for test_run in active_tc_runs %}
+                    <tr>
+                        <td>
+                            {% include "run/status_progress_patternfly.html" with stats=test_run.stats_caseruns_status %}
+                        </td>
+                        <td>
+                            <a href="{% url "testruns-get" test_run.run_id %}?assignee__email__startswith={{ user.username|iriencode }}">{{ test_run.summary }}</a>
+                            <div>{% trans "Started at" %} {{ test_run.start_date }}</div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="panel-footer">
+                {% if test_runs_count %}
+                    {% blocktrans with total_count=test_runs_count count=active_tc_runs|length %}
+                    {{ total_count }} TestRun(s) have cases assigned to you need to be executed.
+                    Here are the latest {{ count }}.
+                    {% endblocktrans %}
+
+                    <a href="{% url "testruns-search" %}?assignee__email__startswith={{ user.username|iriencode }}">
+                        {% trans "SEE ALL" %}
+                    </a>
+                {% else %}
+                    {% trans "There are no TestRun(s) assigned to you" %}
+                {% endif %}
+            </div>
+        </div> <!-- /panel -->
+    </div>
+
 
 </div><!-- /container -->
 {% endblock %}

@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import requires_csrf_token
 
 from tcms.testplans.models import TestPlan
-from tcms.testruns.models import TestRun
+from tcms.testruns.models import TestRun, TestCaseRun
 
 
 @require_GET
@@ -27,7 +27,14 @@ def dashboard(request):
     test_plans_disable_count = test_plans.filter(is_active=False).count()
 
     test_runs = TestRun.objects.filter(
-        Q(manager=request.user) | Q(default_tester=request.user),
+        stop_date__isnull=True,
+    ).order_by('-run_id')
+
+    # my_active_tc_runs = TestCaseRun.objects.filter(
+    #     Q(assignee=request.user) and Q(run__in=active_test_runs)
+    # )
+    active_tc_runs = TestRun.objects.filter(
+        Q(case_run__assignee=request.user) | Q(manager=request.user),
         stop_date__isnull=True,
     ).order_by('-run_id')
 
@@ -37,6 +44,7 @@ def dashboard(request):
         'last_15_test_plans': test_plans.filter(is_active=True)[:15],
 
         'last_15_test_runs': test_runs[:15],
+        'active_tc_runs': active_tc_runs,
 
         'test_runs_count': test_runs.count(),
     }
