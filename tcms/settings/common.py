@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import os.path
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -155,6 +156,11 @@ PUBLIC_VIEWS = [
     'tcms.core.views.navigation',
 ]
 
+#  Kiwi has middleware the requires login.  DACC is secured by JWT tokens from atlassian and will break if
+#  Django login is required
+PUBLIC_PATHS = [
+    r'^/dacc/.*'
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~ DANGER: Don't change the settings below!
@@ -264,7 +270,7 @@ INSTALLED_APPS = [
     'vinaigrette',
     'grappelli',
     'django_slack',
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.messages',
@@ -277,7 +283,10 @@ INSTALLED_APPS = [
     'modernrpc',
     'simple_history',
     'social_django',
-
+    'django_rq',
+    'adminplus',
+    'dacc',
+    'dacc.authentication',
 
     'tcms.core',
     'tcms.core.contrib.auth.apps.AppConfig',
@@ -288,6 +297,7 @@ INSTALLED_APPS = [
     'tcms.testplans.apps.AppConfig',
     'tcms.testruns.apps.AppConfig',
     'tcms.xmlrpc',
+    'tcms.issues.apps.IssuesConfig',
 ]
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -372,21 +382,21 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        # 'slack': {
-        #     'level': 'DEBUG',
-        #     'class': 'logging.FileHandler',
-        #     'filename': '/Kiwi/slack.log'
-        #
-        # }
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(os.getcwd(), 'debug.log')
+
+        }
     },
     'loggers': {
-        # 'django': {
-        #     'handlers': ['slack'],
-        #     'level': 'DEBUG',
-        #     'propagate': True
-        # },
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['file'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -438,3 +448,13 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
 
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': os.environ.get('REDIS_HOST'),
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': os.environ.get('REDIS_PASSWORD'),
+        'DEFAULT_TIMEOUT': 360,
+    },
+}

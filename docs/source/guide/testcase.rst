@@ -62,7 +62,6 @@ To create a new Test Case inside a Test Plan document:
    -  Select the **Category**. This is the type of test being executed. For
       example, Regression or Bug Verification.
    -  Select the **Automated** status: manual, auto, or autoproposed.
-   -  Enter the **Requirement** (optional, legacy Testopia field).
    -  Enter **Script** (optional, legacy Testopia field).
    -  Enter **Alias** (optional).
    -  Enter the **Default Tester** (optional). Must be a valid email address registered in Kiwi TCMS.

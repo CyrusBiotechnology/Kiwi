@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 import logging
 
-logger = logging.getLogger('slack')
+logger = logging.getLogger('file')
 
 
 @receiver(post_save, sender=TestCaseRun)

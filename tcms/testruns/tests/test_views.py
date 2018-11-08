@@ -30,6 +30,7 @@ class TestGetRun(BaseCaseRun):
     @classmethod
     def setUpTestData(cls):
         super(TestGetRun, cls).setUpTestData()
+        cls.user = UserFactory(username="test", email="test.user@gmail.com")
 
     def test_404_if_non_existing_pk(self):
         url = reverse('testruns-get', args=[99999999])
@@ -53,6 +54,14 @@ class TestGetRun(BaseCaseRun):
                 '<a id="link_{0}" href="#caserun_{1}" title="Expand test case">'
                 '{2}</a>'.format(i, case_run.pk, case_run.case.summary),
                 html=True)
+
+    def test_get_user_period_sep(self):
+        self.case_run_1.assigne = self.user
+        self.case_run_1.save()
+        url = reverse('testruns-get', args=[self.test_run.pk])
+        response = self.client.get(url + "?assignee__email__startswith={}".format(self.user.username))
+        self.assertEqual(HTTPStatus.OK, response.status_code)
+        self.assertTrue(response.content, 'foo')
 
 
 class TestCreateNewRun(BasePlanCase):

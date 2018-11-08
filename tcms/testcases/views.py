@@ -31,7 +31,7 @@ from tcms.testruns.models import TestCaseRun
 from tcms.testruns.models import TestCaseRunStatus
 from tcms.testcases.forms import CaseAutomatedForm, NewCaseForm, \
     SearchCaseForm, EditCaseForm, CaseNotifyForm, \
-    CloneCaseForm, CaseBugForm
+    CloneCaseForm, CaseBugForm, CaseIssueForm
 from tcms.testplans.forms import SearchPlanForm
 from tcms.utils.dict_utils import create_dict_from_query
 from .fields import CC_LIST_DEFAULT_DELIMITER
@@ -818,6 +818,7 @@ def get(request, case_id):
     tc_text = tc.get_text_with_version(request.GET.get('case_text_version'))
 
     grouped_case_bugs = tcr and group_case_bugs(tcr.case.get_bugs())
+
     # Render the page
     context_data = {
         'test_case': tc,
@@ -832,6 +833,8 @@ def get(request, case_id):
         'test_case_status': TestCaseStatus.objects.all(),
         'test_case_run_status': TestCaseRunStatus.objects.all(),
         'bug_trackers': BugSystem.objects.all(),
+        'test_case_issues_count': tc.issue_set.count(),
+        'test_case_issues': tc.issue_set,
     }
     return render(request, 'case/get.html', context_data)
 
@@ -903,7 +906,6 @@ def update_testcase(request, tc, tc_form):
               'script',
               'arguments',
               'extra_link',
-              'requirement',
               'alias']
 
     for field in fields:
@@ -1029,7 +1031,6 @@ def edit(request, case_id, template_name='case/edit.html'):
         form = EditCaseForm(initial={
             'summary': tc.summary,
             'default_tester': default_tester,
-            'requirement': tc.requirement,
             'is_automated': tc.get_is_automated_form_value(),
             'is_automated_proposed': tc.is_automated_proposed,
             'script': tc.script,
@@ -1130,7 +1131,6 @@ def clone(request, template_name='case/clone.html'):
                         arguments=tc_src.arguments,
                         extra_link=tc_src.extra_link,
                         summary=tc_src.summary,
-                        requirement=tc_src.requirement,
                         alias=tc_src.alias,
                         estimated_time=tc_src.estimated_time,
                         case_status=TestCaseStatus.get_PROPOSED(),
@@ -1404,6 +1404,82 @@ def bug(request, case_id, template_name='case/get_bug.html'):
         return case_bug_actions.render(response='Unrecognizable actions')
 
     func = getattr(case_bug_actions, request.GET['handle'])
+    return func()
+
+
+def issue(request, case_id, template_name='case/get_issue.html'):
+    """Process the issues for cases"""
+    # FIXME: Rewrite these codes for Ajax.Request
+    tc = get_object_or_404(TestCase, case_id=case_id)
+
+    class CaseIssueActions:
+        __all__ = ['get_form', 'render', 'add', 'remove']
+
+        def __init__(self, request, case, template_name):
+            self.request = request
+            self.case = case
+            self.template_name = template_name
+
+        def render_form(self):
+            form = CaseIssueForm(initial={
+                'case': self.case,
+            })
+            if request.GET.get('type') == 'table':
+                return HttpResponse(form.as_table())
+
+            return HttpResponse(form.as_p())
+
+        def render(self, response=None):
+            context = {
+                'test_case': self.case,
+                'response': response
+            }
+            return render(request, template_name, context)
+
+        def add(self):
+            # FIXME: It's may use ModelForm.save() method here.
+            #        Maybe in future.
+
+            form = CaseIssueForm(request.GET)
+            if not form.is_valid():
+                errors = []
+                for field_name, error_messages in form.errors.items():
+                    for item in error_messages:
+                        errors.append(item)
+                response = '\n'.join(errors)
+                return self.render(response=response)
+
+            try:
+                self.case.add_issues(
+                    jira_keys=[form.cleaned_data['jira_key']]
+                )
+            except Exception as e:
+                return self.render(response=str(e))
+
+            return self.render()
+
+        def remove(self):
+            try:
+                self.case.remove_issue(request.GET.get('id'))
+            except ObjectDoesNotExist as error:
+                import logging
+
+                logger = logging.getLogger('file')
+                logger.error(error)
+                return self.render(response=error)
+
+            return self.render()
+
+    case_issue_actions = CaseIssueActions(
+        request=request,
+        case=tc,
+        template_name=template_name
+    )
+
+    if not request.GET.get('handle') in case_issue_actions.__all__:
+        return case_issue_actions.render(response='Unrecognizable actions')
+
+    func = getattr(case_issue_actions, request.GET['handle'])
     return func()
 
 

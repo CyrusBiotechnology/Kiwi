@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.urls import path
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -23,7 +24,12 @@ from tcms.testruns import urls as testruns_urls
 from tcms.testruns import views as testruns_views
 from tcms.management import views as management_views
 from tcms.report import urls as report_urls
+from adminplus.sites import AdminSitePlus
 
+
+admin.site = AdminSitePlus()
+admin.sites.site = admin.site
+admin.autodiscover()
 
 urlpatterns = [
     url(r'^$', core_views.dashboard, name='core-views-index'),
@@ -68,6 +74,10 @@ urlpatterns = [
     url(r'^caserun/(?P<case_run_id>\d+)/bug/$', testruns_views.bug, name='testruns-bug'),
     url(r'^caserun/comment-many/', ajax.comment_case_runs, name='ajax-comment_case_runs'),
     url(r'^caserun/update-bugs-for-many/', ajax.update_bugs_to_caseruns),
+
+    path('django-rq', include('django_rq.urls')),
+    path('dacc/', include('dacc.urls')),
+    path('issues/', include('tcms.issues.urls')),
 
     url(r'^linkref/add/$', linkreference_views.add, name='linkref-add'),
     url(r'^linkref/remove/(?P<link_id>\d+)/$', linkreference_views.remove),

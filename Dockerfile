@@ -1,4 +1,6 @@
 FROM centos:centos7
+ARG ARTI_NAME
+ARG ARTI_PASS
 
 RUN rpm -Uhv https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
     yum -y --setopt=tsflags=nodocs install centos-release-scl && \
@@ -44,6 +46,9 @@ RUN pip install --no-cache-dir --upgrade pip mod_wsgi && \
            /usr/lib64/httpd/modules/mod_wsgi.so
 
 COPY ./requirements/ /Kiwi/requirements/
+ENV PIP_CONFIG_FILE /Kiwi/pip.conf
+COPY pip_conf.py .
+RUN python pip_conf.py "$ARTI_NAME" "$ARTI_PASS"
 RUN pip install --no-cache-dir -r /Kiwi/requirements/postgres.txt
 
 COPY ./manage.py /Kiwi/
@@ -66,5 +71,5 @@ RUN /Kiwi/manage.py collectstatic --noinput
 
 # from now on execute as non-root
 RUN chown -R 1001 /Kiwi/ /venv/ && \
-    chown 1001 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
+    chown 1001 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key /debug.log
 USER 1001

@@ -9,6 +9,7 @@ from tcms.core.utils import string_to_list
 from tcms.core.utils.validations import validate_bug_id
 from tcms.testplans.models import TestPlan
 from tcms.testruns.models import TestCaseRun
+from tcms.issues.models import Issue
 from tcms.management.models import Priority, Product, Component, Tag
 from .models import TestCase, Category, TestCaseStatus, TestCaseTag
 from .models import Bug, AUTOMATED_CHOICES as FULL_AUTOMATED_CHOICES
@@ -63,7 +64,6 @@ class BugField(forms.CharField):
 class BaseCaseForm(forms.Form):
     summary = forms.CharField(label="Summary", )
     default_tester = UserField(label="Default tester", required=False)
-    requirement = forms.CharField(label="Requirement", required=False)
     is_automated = forms.MultipleChoiceField(
         choices=AUTOMATED_CHOICES,
         widget=forms.CheckboxSelectMultiple,
@@ -459,6 +459,24 @@ class CaseBugForm(forms.ModelForm):
     class Meta:
         model = Bug
         fields = '__all__'
+
+
+class CaseIssueForm(forms.ModelForm):
+    case = forms.ModelChoiceField(queryset=TestCase.objects.all(),
+                                  widget=forms.HiddenInput())
+    case_run = forms.ModelChoiceField(queryset=TestCaseRun.objects.all(),
+                                      widget=forms.HiddenInput(),
+                                      required=False)
+
+    def clean(self):
+        super(CaseIssueForm, self).clean()
+        jira_key = self.cleaned_data['jira_key']
+
+        return self.cleaned_data
+
+    class Meta:
+        model = Issue
+        fields = ('jira_key', )
 
 
 class CaseComponentForm(forms.Form):

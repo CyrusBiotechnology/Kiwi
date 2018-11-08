@@ -225,7 +225,6 @@ class TestPlan(TCMSActionModel):
                         script=tpcase_src.script,
                         arguments=tpcase_src.arguments,
                         summary=tpcase_src.summary,
-                        requirement=tpcase_src.requirement,
                         alias=tpcase_src.alias,
                         estimated_time=tpcase_src.estimated_time,
                         case_status=TestCaseStatus.get_PROPOSED(),

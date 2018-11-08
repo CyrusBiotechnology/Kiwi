@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Available Projects</h1>
+{% if projects or configured %}
+<ul>
+{% for project in projects %}
+    <li><a href="{% url 'admin:jira-config' project.key %}">{{ project.name }}</a></li>
+{% empty %}
+    <li>No Projects yet.</li>
+{% endfor %}
+</ul>
+<h1>Configured Projects</h1>
+<ul>
+    {% for project in configured %}
+        <li><a href="{% url 'admin:jira-config' project.key %}">{{ project.name }}</a> </li>
+        {% empty %}
+        <li>No Projects yet.</li>
+    {% endfor %}
+</ul>
+{% else %}
+<h2>No Jira integrations found, please install configure Jira integration and try again</h2>
+{% endif %}
+{% endblock %}

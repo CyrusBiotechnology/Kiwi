@@ -494,7 +494,6 @@ class TestCaseXMLRPCSerializer(QuerySetBasedXMLRPCSerializer):
         'is_automated': ('is_automated', do_nothing),
         'is_automated_proposed': ('is_automated_proposed', do_nothing),
         'notes': ('notes', do_nothing),
-        'requirement': ('requirement', do_nothing),
         'script': ('script', do_nothing),
         'summary': ('summary', do_nothing),
 
