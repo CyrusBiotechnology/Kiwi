@@ -372,19 +372,19 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        # 'slack': {
-        #     'level': 'DEBUG',
-        #     'class': 'logging.FileHandler',
-        #     'filename': '/Kiwi/slack.log'
-        #
-        # }
+        'slack': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/Kiwi/slack.log'
+
+        }
     },
     'loggers': {
-        # 'django': {
-        #     'handlers': ['slack'],
-        #     'level': 'DEBUG',
-        #     'propagate': True
-        # },
+        'django': {
+            'handlers': ['slack'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
