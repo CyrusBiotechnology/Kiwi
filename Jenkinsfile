@@ -4,7 +4,7 @@ node {
   }
   stage("Build"){
     withCredentials([usernamePassword(credentialsId: 'Artifactory', usernameVariable: 'ARTI_NAME', passwordVariable: 'ARTI_PASS')]) {
-        sh "docker build . -t ${docker2.imageRef()} --build-arg ARTI_NAME=$ARTI_NAME --build-arg ARTI_PASS=$ARTI_PASS"
+        sh "docker build . -t ${docker2.imageRef()} --build-arg ARTI_NAME=${ARTI_NAME} --build-arg ARTI_PASS=${ARTI_PASS}"
     }
   }
   
