@@ -392,7 +392,6 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-            'strm': sys.stdout
         }
     },
     'loggers': {
