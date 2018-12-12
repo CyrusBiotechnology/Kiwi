@@ -1,4 +1,4 @@
-FROM centos:centos7 as base
+FROM centos:centos7 as kiwibase
 RUN rpm -Uhv https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
     yum -y --setopt=tsflags=nodocs install centos-release-scl && \
      yum -y --setopt=tsflags=nodocs install rh-python36 gcc mariadb-devel mariadb \
@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir --upgrade pip mod_wsgi && \
     ln -fs /venv/lib64/python3.6/site-packages/mod_wsgi/server/mod_wsgi-py36.cpython-36m-x86_64-linux-gnu.so \
            /usr/lib64/httpd/modules/mod_wsgi.so
 
-FROM base as venv
+FROM kiwibase as venv
 ARG ARTI_NAME
 ARG ARTI_PASS
 
@@ -39,8 +39,8 @@ RUN python pip_conf.py "$ARTI_NAME" "$ARTI_PASS"
 RUN pip install --no-cache-dir -r /Kiwi/requirements/postgres.txt
 
 
-FROM base
-COPY --from=venv /venv .
+FROM kiwibase
+COPY --from=venv /venv /venv
 
 # Apache configuration for non-root users
 EXPOSE 8080
@@ -77,5 +77,5 @@ RUN /Kiwi/manage.py collectstatic --noinput
 
 # from now on execute as non-root
 RUN chown -R 1001 /Kiwi/ /venv/ && \
-    chown 1001 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key /debug.log
+    chown 1001 /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
 USER 1001

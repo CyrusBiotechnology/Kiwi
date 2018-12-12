@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import os.path
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -386,7 +387,12 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(os.getcwd(), 'debug.log')
-
+        },
+        'k8s': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'strm': sys.stdout
         }
     },
     'loggers': {

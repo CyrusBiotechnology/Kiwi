@@ -35,7 +35,8 @@ from tcms.testcases.forms import CaseAutomatedForm, NewCaseForm, \
 from tcms.testplans.forms import SearchPlanForm
 from tcms.utils.dict_utils import create_dict_from_query
 from .fields import CC_LIST_DEFAULT_DELIMITER
-
+import logging
+logger = logging.getLogger('django')
 
 TESTCASE_OPERATION_ACTIONS = (
     'search', 'sort', 'update',
@@ -1462,9 +1463,6 @@ def issue(request, case_id, template_name='case/get_issue.html'):
             try:
                 self.case.remove_issue(request.GET.get('id'))
             except ObjectDoesNotExist as error:
-                import logging
-
-                logger = logging.getLogger('file')
                 logger.error(error)
                 return self.render(response=error)
 

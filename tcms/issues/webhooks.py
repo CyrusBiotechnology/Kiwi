@@ -4,7 +4,7 @@ from dateutil import parser
 from .models import Issue, Project, IssueType
 import logging
 
-logger = logging.getLogger('file')
+logger = logging.getLogger('django')
 
 
 def create_issue(data):
