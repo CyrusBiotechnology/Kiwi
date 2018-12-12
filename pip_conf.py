@@ -17,6 +17,7 @@ def write_pip_conf(username, token, url):
     if not pip_file:
         raise KeyError("Environment Variable 'PIP_CONFIG_FILE' not set")
     username = urllib.parse.quote(username)
+    token = urllib.parse.quote(token)
     custom_url = f'https://{username}:{token}@{url}'
     with open(pip_file, 'w') as f:
         conf_lines = [
