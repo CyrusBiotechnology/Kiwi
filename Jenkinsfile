@@ -3,7 +3,7 @@ node {
     checkout scm
   }
   stage("Build"){
-    sh "docker build . -t ${docker2.imageRef()}"
+    sh "docker build . -t ${docker2.imageRef()} --build-arg ARTI_NAME=$ARTI_NAME --build-arg ARTI_PASS=$ARTI_PASS"
   }
   
   stage ("Upload Image"){
