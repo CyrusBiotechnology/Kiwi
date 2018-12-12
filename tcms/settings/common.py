@@ -383,11 +383,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(os.getcwd(), 'debug.log')
-        },
         'k8s': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
