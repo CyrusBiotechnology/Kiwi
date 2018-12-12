@@ -51,6 +51,8 @@ spec:
               value: "5432"
             - name: KIWI_DB_USER
               value: kiwi
+            - name: REDIS_HOST
+              value: redis
             - name: GOOGLE_OAUTH2_KEY
               valueFrom:
                 secretKeyRef:
@@ -69,7 +71,88 @@ spec:
           ports:
             - containerPort: 80
             - containerPort: 443
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: kiwi-rq-worker
+  labels:
+    app: kiwi
+spec:
+  selector:
+    matchLabels:
+      app: kiwi
+      tier: worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: kiwi
+        tier: worker
+    spec:
+      containers:
+        - image: gcr.io/cyrus-playground/kiwitcms/kiwi:latest
+          name: kiwi-rq-worker
+          imagePullPolicy: Always
+          command: ["/venv/bin/python","/Kiwi/manage.py","rqworker","default"]
+          env:
+          - name: KIWI_DB_HOST
+            value: kiwi-db
+          - name: KIWI_DB_NAME
+            value: kiwi
+          - name: KIWI_DB_PASSWORD
+            value: kiwi-1s-aw3s0m3
+          - name: KIWI_DB_PORT
+            value: "5432"
+          - name: KIWI_DB_USER
+            value: kiwi
+          - name: REDIS_HOST
+            value: redis
       imagePullSecrets:
         - name: gcrcreds
-
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "0.0.0.0/0"
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/openstack-internal-load-balancer: "true"
+  labels:
+    name: redis
+  name: redis
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - image: redis
+          name: redis
+          ports:
+            - containerPort: 6379
+              name: redis
+              protocol: TCP

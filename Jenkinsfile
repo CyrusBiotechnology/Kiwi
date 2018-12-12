@@ -3,7 +3,9 @@ node {
     checkout scm
   }
   stage("Build"){
-    sh "docker build . -t ${docker2.imageRef()}"
+    withCredentials([usernamePassword(credentialsId: 'Artifactory', usernameVariable: 'ARTI_NAME', passwordVariable: 'ARTI_PASS')]) {
+        sh "docker build . -t ${docker2.imageRef()} --build-arg ARTI_NAME=${ARTI_NAME} --build-arg ARTI_PASS=${ARTI_PASS}"
+    }
   }
   
   stage ("Upload Image"){

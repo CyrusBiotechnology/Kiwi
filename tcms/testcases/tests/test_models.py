@@ -2,6 +2,7 @@
 # pylint: disable=invalid-name
 
 from mock import patch
+from dateutil import parser
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -85,6 +86,64 @@ class TestCaseRemoveBug(BasePlanCase):
         bug_found = self.case.case_bug.filter(bug_id=self.bug_id_2).exists()
         self.assertTrue(bug_found,
                         'Bug {0} does not exist. It should not be deleted.'.format(self.bug_id_2))
+
+
+class TestCaseRemoveIssue(BasePlanCase):
+    """Test TestCase.remove_issue"""
+
+    @classmethod
+    def setUpTestData(cls):
+        super(TestCaseRemoveIssue, cls).setUpTestData()
+
+        cls.build = BuildFactory(product=cls.product)
+        cls.test_run = TestRunFactory(product_version=cls.version, plan=cls.plan,
+                                      manager=cls.tester, default_tester=cls.tester)
+        cls.case_run = TestCaseRunFactory(assignee=cls.tester, tested_by=cls.tester,
+                                          case=cls.case, run=cls.test_run, build=cls.build)
+
+    def setUp(self):
+        from tcms.issues.models import Issue, IssueType, Project
+        project = Project.objects.create(jid='10001', key='TEST', name='TEST')
+        issue_type = IssueType.objects.create(project=project, name='Bug', jid='10001', icon_url='img.com')
+        self.issue_1 = Issue.objects.create(
+            jid='10001',
+            link='foo.com',
+            jira_key='TEST-1',
+            fixVersions=[],
+            summary="Issue 1",
+            assignee="not me",
+            iss_updated=parser.parse('2018-11-14T06:02:07.411+0000'),
+            iss_created=parser.parse('2018-11-14T06:02:07.411+0000'),
+            issue_type=issue_type,
+            project=project
+        )
+        self.case.add_issues([self.issue_1.jira_key])
+        self.issue_2 = Issue.objects.create(
+            jid='10002',
+            link='foo.com',
+            jira_key='TEST-2',
+            fixVersions=[],
+            summary="Issue 2",
+            assignee="not me",
+            iss_updated=parser.parse('2018-11-14T06:02:07.411+0000'),
+            iss_created=parser.parse('2018-11-14T06:02:07.411+0000'),
+            issue_type=issue_type,
+            project=project
+        )
+        self.case.add_issues([self.issue_2.jira_key])
+
+    def tearDown(self):
+        self.case.issue_set.all().delete()
+
+    def test_remove_case_bug(self):
+        self.case.remove_issue(self.issue_1.jid)
+
+        issue_found = self.case.issue_set.filter(id=self.issue_1.id).exists()
+        self.assertFalse(issue_found)
+
+        issue_found = self.case.issue_set.filter(id=self.issue_2.id).exists()
+        self.assertTrue(issue_found,
+                        'Issue {0} does not exist. It should not be deleted.'.format(self.issue_2.id))
 
 
 class TestCaseRemoveComponent(BasePlanCase):

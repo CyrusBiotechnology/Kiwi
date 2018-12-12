@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/@atlaskit/css-reset@2.0.0/dist/bundle.css" media="all">
+        <script src="https://connect-cdn.atl-paas.net/all.js" async></script>
+    </head>
+    <body>
+        <table id="testcases" class="list" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <th>Test ID</th>
+                <th>Test Summary</th>
+                <th>Status</th>
+                <th>Url</th>
+                <th>Last Run</th>
+                <th>Last Run Status</th>
+            </tr>
+            {% for info in cases %}
+                <td>{{ info.case.case_id }}</td>
+{#  Need to figure out auth piece <a href="{{ site_url }}{% url 'testcases-get' info.case.case_id %}">{{ info.case.summary }}</a>#}
+                <td>{{ info.case.summary }}</td>
+                <td>{{ info.case.case_status }}</td>
+                <td>{{ site_url }}{% url 'testcases-get' info.case.case_id %}</td>
+                <td>{{ info.run.case_run_id }}</td>
+                <td>{{ info.run.case_run_status }}</td>
+            {% empty %}
+            <tr>
+                <td colspan="4" align="center" class="grey">No case related to this issue.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

@@ -42,7 +42,8 @@ from django_slack import slack_message
 from django.contrib.sites.models import Site
 import logging
 
-logger = logging.getLogger('slack')
+logger = logging.getLogger('django')
+
 
 def save_env_properties(request, test_run):
     """
