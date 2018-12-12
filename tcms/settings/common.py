@@ -396,12 +396,12 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['k8s'],
             'level': 'INFO',
             'propagate': True
         },
         'django.request': {
-            'handlers': ['file'],
+            'handlers': ['k8s'],
             'level': 'ERROR',
             'propagate': True,
         },
