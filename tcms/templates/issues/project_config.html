@@ -1,0 +1,10 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h2>Configuration for {{ project_name }}</h2>
+<p>{{ description }}</p>
+<form action="{% url 'admin:save-config' project.key %}" method="post">
+    {%  csrf_token %}
+    {{ form }}
+<input type="submit" value="Submit">
+</form>
+{% endblock %}

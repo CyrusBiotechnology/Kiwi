@@ -132,12 +132,6 @@ Nitrate.TestCases.Instance = {
 					<div class="name">{{ test_case.get_is_automated_status }}</div>
 				</div>
 				<div class="listinfo">
-					<div class="title grey">Requirement&nbsp;:</div>
-					<div class="name {% if not test_case.requirement %}grey{% endif %}">
-						<span id="display_requirement" >{{ test_case.requirement|default:'None' }}</span>
-					</div>
-				</div>
-				<div class="listinfo">
 					<div class="title grey">Script&nbsp;:</div>
 					<div class="name {% if not test_case.script %}grey{% endif %}">
 						<span id="display_script" >{{ test_case.script|default:'None' }}</span>
@@ -195,6 +189,9 @@ Nitrate.TestCases.Instance = {
 			<li id="tab_case_run" class="tab">
 				<a href="#case_run" title="case_run">Case Runs (<span id='case_run_count'>{{ test_case_runs.count }}</span>)</a>
 			</li>
+            <li id="tab_case_issue" class="tab">
+                <a href="#issue" title="issue">Issues (<span id="issue_count">{{ test_case_issues_count }}</span>)</a>
+            </li>
 		</ul>
 		<div  id="document" class="Detailform-variety_2 tab_list" style="clear:left;">
 			{% include "case/get_text.html" %}
@@ -220,6 +217,12 @@ Nitrate.TestCases.Instance = {
 		 <div id="case_run" class="tab_list" style="display:none">
 			{% include "case/get_case_run.html" %}
 		</div>
+        <div id="issue" class="tab_list" style="display:none">
+            <div id="issue_list">
+                {% include "case/get_issue.html" %}
+            </div>
+            {% include 'case/add_issue_form.html' %}
+        </div>
 	</div>
 </div>
 {% endblock %}

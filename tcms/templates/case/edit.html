@@ -137,20 +137,22 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Edit.on_load);
 					
 					<div class="data_row">
 						<label>Automated</label>
-							{{ form.is_automated }}
-							<div class="automatedlist">
-							{{ form.is_automated_proposed }}
-							{{ form.is_automated_proposed.label }}
-							</div>
-						<div class="errors">
+                        <select name="{{ form.is_automated.name }}">
+                            {% for choice in form.is_automated.field.choices %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="errors">
 							{{ form.is_automated.errors }}
-							{{ form.is_automated_proposed.errors }}
 						</div>
 					</div>
-					<div class="data_row">
-						<label >Requirement</label>
-						<div id="form_requirement"  >{{ form.requirement }}</div>
-					</div>
+                    <div class="data_row">
+                        <label>{{ form.is_automated_proposed.label }}</label>
+                        {{ form.is_automated_proposed }}
+                        <div class="errors">
+							{{ form.is_automated_proposed.errors }}
+						</div>
+                    </div>
 					<div class="data_row">
 						<label >Script</label>
 						<div id="form_script" >{{ form.script }}</div>
@@ -171,15 +173,27 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Edit.on_load);
 			</fieldset>
 			<fieldset class="no-border background-light-grey">
 				<div class="editor-side">
-					<h4 class="strong">Setup</h4>
+					<h4 class="strong">
+                        Setup
+                        <i class="system_info" title="Steps required before executing the test. Ex. Import data"></i>
+                    </h4>
 					<div class="form" id="form_setup">{{ form.setup }}</div>
-					<h4 class="strong">Actions</h4>
+					<h4 class="strong">
+                        Actions
+                        <i class="system_info" title="Steps required to execute the test. Ex. Go to page, click button"></i>
+                    </h4>
 					<div class="form" id="form_action">{{ form.action }}</div>
 				</div>
 				<div class="editor-side">
-					<h4 class="strong">Break down</h4>
+					<h4 class="strong">
+                        Break down
+                        <i class="system_info" title="Steps required to clean up test case. Ex. Delete Imported data"></i>
+                    </h4>
 					<div class="" id="form_breakdown">{{ form.breakdown }}</div>
-					<h4 class="strong">Expected Results</h4>
+					<h4 class="strong">
+                        Expected Results
+                        <i class="system_info" title="That events that you expect to happen and the state the system should be in after executing the test step(s)"></i>
+                    </h4>
 					<div class="" id="form_effect">{{ form.effect }}</div>
 				</div>
 			</fieldset>

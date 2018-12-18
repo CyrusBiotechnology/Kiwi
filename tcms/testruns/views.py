@@ -16,7 +16,7 @@ from django.db.models import Count
 from django.db.models import Q
 from django.forms import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_GET
@@ -38,6 +38,11 @@ from tcms.testruns.data import TestCaseRunDataMixin
 from tcms.testruns.forms import NewRunForm, SearchRunForm, BaseRunForm
 from tcms.testruns.models import TestRun, TestCaseRun, TestCaseRunStatus, EnvRunValueMap
 from tcms.issuetracker.types import IssueTrackerType
+from django_slack import slack_message
+from django.contrib.sites.models import Site
+import logging
+
+logger = logging.getLogger('django')
 
 
 def save_env_properties(request, test_run):
@@ -301,6 +306,7 @@ def get(request, run_id, template_name='run/get.html'):
         'priorities': Priority.objects.all(),
         'case_own_tags': tags,
         'bug_trackers': BugSystem.objects.all(),
+        'testers': User.objects.all(),
     }
     return render(request, template_name, context_data)
 
@@ -935,6 +941,19 @@ class UpdateAssigneeView(View):
                                     status=HTTPStatus.NOT_FOUND)
 
         object_ids = request.POST.getlist('ids[]')
+        object_id = request.POST.get('id')
+        if object_id:
+            test_case_run = get_object_or_404(TestCaseRun, pk=int(object_id))
+            test_case_run.assignee = user
+            test_case_run.save()
+            site = Site.objects.get_current()
+
+            slack_message('slack/updated_testcaserun_assignee.slack',
+                          {
+                              'tc_run': test_case_run,
+                              'site': site,
+                           })
+            return redirect('testruns-get', run_id=test_case_run.run_id)
 
         for caserun_pk in object_ids:
             test_case_run = get_object_or_404(TestCaseRun, pk=int(caserun_pk))

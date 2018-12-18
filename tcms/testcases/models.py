@@ -13,6 +13,7 @@ from tcms.core.utils.checksum import checksum
 from tcms.core.history import KiwiHistoricalRecords
 from tcms.issuetracker.types import IssueTrackerType
 from tcms.testcases.fields import CC_LIST_DEFAULT_DELIMITER
+from tcms.issues.models import Issue
 
 
 AUTOMATED_CHOICES = (
@@ -105,7 +106,6 @@ class TestCase(TCMSActionModel):
     arguments = models.TextField(blank=True, null=True)
     extra_link = models.CharField(max_length=1024, default=None, blank=True, null=True)
     summary = models.CharField(max_length=255)
-    requirement = models.CharField(max_length=255, blank=True, null=True)
     alias = models.CharField(max_length=255, blank=True)
     estimated_time = models.DurationField(default=timedelta(0))
     notes = models.TextField(blank=True, null=True)
@@ -168,7 +168,6 @@ class TestCase(TCMSActionModel):
             arguments=values['arguments'],
             extra_link=values['extra_link'],
             summary=values['summary'],
-            requirement=values['requirement'],
             alias=values['alias'],
             estimated_time=values['estimated_time'],
             case_status=values['case_status'],
@@ -299,6 +298,13 @@ class TestCase(TCMSActionModel):
         else:
             raise ValueError('Bug %s already exist.' % bug_id)
 
+    def add_issues(self, jira_keys):
+
+        for jira_key in jira_keys:
+            issue = Issue.objects.get(jira_key=jira_key)
+            issue.test_cases.add(self.case_id)
+            issue.save()
+
     def add_component(self, component):
         return TestCaseComponent.objects.get_or_create(case=self, component=component)
 
@@ -365,6 +371,9 @@ class TestCase(TCMSActionModel):
         return Bug.objects.select_related(
             'case_run', 'bug_system'
         ).filter(case__case_id=self.case_id)
+
+    def get_issues(self):
+        return Issue.objects.filter(test_cases__case_id=self.case_id)
 
     def get_components(self):
         return self.component.all()
@@ -434,6 +443,10 @@ class TestCase(TCMSActionModel):
             query = query.filter(case_run__isnull=True)
 
         query.delete()
+
+    def remove_issue(self, issue_id):
+        issue = Issue.objects.get(jid=issue_id)
+        self.issue_set.remove(issue)
 
     def remove_component(self, component):
         # note: cannot use self.component.remove(component) on a ManyToManyField

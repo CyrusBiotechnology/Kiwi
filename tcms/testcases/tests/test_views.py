@@ -503,7 +503,6 @@ class TestEditCase(BasePlanCase):
             'extra_link': '',
             'notes': '',
             'is_automated': '0',
-            'requirement': '',
             'script': '',
             'alias': '',
             'priority': cls.case_1.priority.pk,

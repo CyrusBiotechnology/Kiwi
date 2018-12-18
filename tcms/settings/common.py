@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+import sys
 import os.path
 from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -12,7 +14,7 @@ import tcms
 
 
 # Set to False for production
-DEBUG = True
+DEBUG = False
 
 
 # Make this unique, and don't share it with anybody.
@@ -22,22 +24,19 @@ SECRET_KEY = '^8y!)$0t7yq2+65%&_#@i^_o)eb3^q--y_$e7a_=t$%$1i)zuv'
 # Database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('KIWI_DB_NAME', 'kiwi'),
         'USER': os.environ.get('KIWI_DB_USER', 'kiwi'),
         'PASSWORD': os.environ.get('KIWI_DB_PASSWORD', 'kiwi'),
         'HOST': os.environ.get('KIWI_DB_HOST', ''),
         'PORT': os.environ.get('KIWI_DB_PORT', ''),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
     },
 }
 
 
 # Administrators error report email settings
 ADMINS = [
-    # ('Your Name', 'your_email@example.com'),
+    ('Ryan Schaffer', 'ryan.schaffer@cyrusbio.com'),
 ]
 
 
@@ -45,9 +44,13 @@ ADMINS = [
 # DEFAULT_FROM_EMAIL must be defined if you want Kiwi TCMS to send emails.
 # You also need to configure the email backend. For more information see:
 # https://docs.djangoproject.com/en/2.0/topics/email/#quick-example
-DEFAULT_FROM_EMAIL = 'kiwi@example.com'
+DEFAULT_FROM_EMAIL = 'kiwi@mg.cyrusbio.com'
 EMAIL_SUBJECT_PREFIX = '[Kiwi-TCMS] '
-
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~ You may want to override the following settings as well
@@ -133,6 +136,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'global_login_required.GlobalLoginRequiredMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 
@@ -152,6 +157,11 @@ PUBLIC_VIEWS = [
     'tcms.core.views.navigation',
 ]
 
+#  Kiwi has middleware the requires login.  DACC is secured by JWT tokens from atlassian and will break if
+#  Django login is required
+PUBLIC_PATHS = [
+    r'^/dacc/.*'
+]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~ DANGER: Don't change the settings below!
@@ -240,6 +250,9 @@ TEMPLATES = [
 
                 'tcms.core.context_processors.request_contents_processor',
                 'tcms.core.context_processors.settings_processor',
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -257,7 +270,8 @@ WSGI_APPLICATION = 'tcms.wsgi.application'
 INSTALLED_APPS = [
     'vinaigrette',
     'grappelli',
-    'django.contrib.admin',
+    'django_slack',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.messages',
@@ -269,6 +283,11 @@ INSTALLED_APPS = [
     'django_comments',
     'modernrpc',
     'simple_history',
+    'social_django',
+    'django_rq',
+    'adminplus',
+    'dacc',
+    'dacc.authentication',
 
     'tcms.core',
     'tcms.core.contrib.auth.apps.AppConfig',
@@ -279,6 +298,7 @@ INSTALLED_APPS = [
     'tcms.testplans.apps.AppConfig',
     'tcms.testruns.apps.AppConfig',
     'tcms.xmlrpc',
+    'tcms.issues.apps.IssuesConfig',
 ]
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -313,7 +333,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Enable the administrator delete permission
 # In another word it's set the admin to super user or not.
-SET_ADMIN_AS_SUPERUSER = False
+SET_ADMIN_AS_SUPERUSER = True
 
 # Allows history_change_reason to be a TextField so we can
 # support a changelog-like feature! DO NOT EDIT b/c migrations
@@ -363,10 +383,20 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        'k8s': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        }
     },
     'loggers': {
+        'django': {
+            'handlers': ['k8s'],
+            'level': 'INFO',
+            'propagate': True
+        },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['k8s'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -381,4 +411,50 @@ LOGGING = {
 # override default message tags to match Patternfly class names
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
+}
+
+PUBLIC_VIEWS.extend([
+    'social_django.views.auth',
+    'social_django.views.complete',
+    'social_django.views.disconnect',
+])
+
+AUTHENTICATION_BACKENDS = ([
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+])
+
+SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/plus.me',
+    'https://www.googleapis.com/auth/userinfo.email'
+]
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'tcms.custom_pipeline.email_required',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'tcms.custom_pipeline.initiate_defaults',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('GOOGLE_OAUTH2_SECRET')
+
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': os.environ.get('REDIS_HOST'),
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': os.environ.get('REDIS_PASSWORD'),
+        'DEFAULT_TIMEOUT': 360,
+    },
 }

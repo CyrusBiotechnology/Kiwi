@@ -60,21 +60,22 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Create.on_load);
 					</div>
 					<div class="data_row">
 						<label>Automated</label>
-						{{ form.is_automated }}
-                        <div class="automatedlist">
-						{{ form.is_automated_proposed }}
-						{{ form.is_automated_proposed.label }}
-						</div>
+                        <select name="{{ form.is_automated.name }}">
+                            {% for choice in form.is_automated.field.choices %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                            {% endfor %}
+                        </select>
                         <div class="errors">
 							{{ form.is_automated.errors }}
-							{{ form.is_automated_proposed.errors }}
 						</div>
 					</div>
-					<div class="data_row">
-						<label >Requirement</label>
-						{{ form.requirement }}
-						{{ form.requirement.errors }}
-					</div>
+                    <div class="data_row">
+                        <label>{{ form.is_automated_proposed.label }}</label>
+                        {{ form.is_automated_proposed }}
+                        <div class="errors">
+							{{ form.is_automated_proposed.errors }}
+						</div>
+                    </div>
 					<div class="data_row">
 						<label >Script</label>
 						{{ form.script }}
@@ -123,12 +124,16 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Create.on_load);
 			<fieldset class="no-border background-light-grey">
 				<div class="editor-side">
 					<div class="data_row">
-						<h4 >Setup</h4>
+						<h4>Setup
+                            <i class="system_info" title="Steps required before executing the test. Ex. Import data"></i>
+                        </h4>
 						<div class="form">{{ form.setup }}</div>
 						<div class="errors">{{ form.setup.errors }}</div>
 					</div>
 					<div class="data_row">
-						<h4>Actions</h4>
+						<h4>Actions
+                            <i class="system_info" title="Steps required to execute the test. Ex. Go to page, click button"></i>
+                        </h4>
 						<div class="form">{{ form.action }}</div>
 						<div class="errors">{{ form.action.errors }}</div>
 					</div>
@@ -136,12 +141,17 @@ Nitrate.Utils.after_page_load(Nitrate.TestCases.Create.on_load);
 				<div class="editor-side">
 
 					<div class="data_row">
-						<h4>Breakdown</h4>
+						<h4>Breakdown
+                        <i class="system_info" title="Steps required to clean up test case. Ex. Delete Imported data"></i>
+                        </h4>
 						<div class="form">{{ form.breakdown }}</div>
 						<div class="errors">{{ form.breakdown.errors }}</div>
 					</div>
 					<div class="data_row">
-						<h4>Expected Results</h4>
+						<h4>
+                            Expected Results
+                            <i class="system_info" title="That events that you expect to happen and the state the system should be in after executing the test step(s)"></i>
+                        </h4>
 						<div class="form">{{ form.effect }}</div>
 						<div class="errors">{{ form.effect.errors }}</div>
 					</div>

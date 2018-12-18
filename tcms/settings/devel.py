@@ -7,17 +7,17 @@ import os
 from .product import *  # noqa: F403
 
 # Debug settings
-DEBUG = True
+DEBUG = False
 
 # Database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/tmp/kiwi.devel.sqlite',  # nosec:B108:hardcoded_tmp_directory
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'kiwi',  # nosec:B108:hardcoded_tmp_directory
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

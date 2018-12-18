@@ -27,9 +27,13 @@ def dashboard(request):
     test_plans_disable_count = test_plans.filter(is_active=False).count()
 
     test_runs = TestRun.objects.filter(
-        Q(manager=request.user) | Q(default_tester=request.user),
         stop_date__isnull=True,
     ).order_by('-run_id')
+
+    active_tc_runs = TestRun.objects.filter(
+        Q(case_run__assignee=request.user) | Q(manager=request.user),
+        stop_date__isnull=True,
+    ).order_by('-run_id').distinct()
 
     context_data = {
         'test_plans_count': test_plans.count(),
@@ -37,6 +41,7 @@ def dashboard(request):
         'last_15_test_plans': test_plans.filter(is_active=True)[:15],
 
         'last_15_test_runs': test_runs[:15],
+        'active_tc_runs': active_tc_runs,
 
         'test_runs_count': test_runs.count(),
     }

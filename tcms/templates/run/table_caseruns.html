@@ -14,14 +14,13 @@
 			<th class="widthID">Case Run ID</th>
 			<th class="widthID">Case ID</th>
 			<th>Summary</th>
-			<th width="80">Tester</th>
-			<th width="80">Assignee</th>
+			<th width="120">Assignee</th>
 			<th width="140">Automated </th>
-			<th width="100">Category</th>
+			<th width="120">Category</th>
 			<th width="50">Priority</th>
-			<th width="40">Bugs</th>
+			<th width="50">Bugs</th>
 			<th width="50" style='text-align:center'>Status</th>
-			<th width="65">Comments</th>
+			<th width="75">Comments</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -46,16 +45,14 @@
 				<a id="link_{{ forloop.counter }}" href="#caserun_{{ test_case_run.pk }}" title="Expand test case">{{ test_case_run.case.summary }}</a>
 			</td>
 			<td>
-				{% if tester %}
-				<a href="{% url "tcms-profile" tester %}" class="link_tested_by">{{ tester }}</a>
-				{% else %}
-				<a class="link_tested_by">None</a>
-				{% endif %}
-			</td>
-			<td>
-				{% if assignee %}
-				<a href="{% url "tcms-profile" assignee %}" class="link_assignee">{{ assignee }}</a>
-				{% else %}None{% endif %}
+                <form action="{% url "testruns-update_assignee" %}" method="post">
+                    <input type="hidden" value="{{ test_case_run.pk }}" name="id">
+                    <select class="form-control selectpicker" name="assignee" id="assignee" onchange="this.form.submit()">
+                        {% for option in testers %}
+                            <option value="{{ option.username }}" {% if option.username == assignee %} selected="selected" {%  endif %}>{{ option.username }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
 			</td>
 			<td class="expandable">{{ test_case_run.case.get_is_automated_status }}</td>
 			<td class="expandable">{{ test_case_run.case.category }}</td>

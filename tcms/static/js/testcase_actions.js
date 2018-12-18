@@ -185,6 +185,13 @@ Nitrate.TestCases.Details.on_load = function() {
     var params = jQ(event.target).data('params');
     removeCaseBug(params.id, params.caseId, params.caseRunId);
   });
+  jQ('.js-add-issue').bind('click', function(event){
+    addCaseIssue(jQ('#id_case_issue_form')[0]);
+  });
+  jQ('.js-remove-issue').bind('click', function (event) {
+    var params = jQ(event.target).data('params');
+    removeCaseIssue(params.id, params.caseId);
+  });
 
   jQ('.js-add-bug').bind('click', function(event) {
     addCaseBug(jQ('#id_case_bug_form')[0]);
@@ -551,6 +558,83 @@ function removeCaseBug(id, case_id, case_run_id) {
     'data': parameteres,
     'success': function (data, textStatus, jqXHR) {
       jQ('#bug_list').html(data);
+    },
+    'complete': function () {
+      complete();
+    }
+  });
+}
+
+function addCaseIssue(form, callback) {
+  var addIssueInfo = Nitrate.Utils.formSerialize(form);
+  addIssueInfo.jira_key = addIssueInfo.jira_key.trim();
+
+  if (!addIssueInfo.jira_key.length) {
+    // No issue ID input, no any response is required
+    return false;
+  }
+
+  var complete = function(t) {
+    jQ('.js-add-issue').bind('click', function(event) {
+      console.log('completed callback, add issue');
+      addCaseIssue(jQ('#id_case_issue_form')[0]);
+    });
+    jQ('.js-remove-issue').bind('click', function(event) {
+      var params = jQ(event.target).data('params');
+      removeCaseIssue(params.id, params.caseId);
+    });
+    if (jQ('#response').length) {
+      window.alert(jQ('#response').html());
+      return false;
+    }
+
+    if (callback) {
+      callback();
+    }
+    jQ('#case_issue_count').text(jQ('table#issues').attr('count'));
+  };
+  jQ.ajax({
+    'url': form.action,
+    'type': form.method,
+    'data': addIssueInfo,
+    'success': function (data, textStatus, jqXHR) {
+      jQ('#issue_list').html(data);
+    },
+    'complete': function () {
+      complete();
+    }
+  });
+}
+
+function removeCaseIssue(id, case_id) {
+  if(!window.confirm('Are you sure to remove the issue?')) {
+    return false;
+  }
+
+  var parameteres = { 'handle': 'remove', 'id': id };
+
+  var complete = function(t) {
+    jQ('.js-remove-issue').bind('click', function(event) {
+      var params = jQ(event.target).data('params');
+      removeCaseIssue(params.id, params.caseId);
+    });
+    jQ('.js-add-issue').bind('click', function(event) {
+      addCaseIssue(jQ('#id_case_issue_form')[0]);
+    });
+
+    if (jQ('#response').length) {
+      window.alert(jQ('#response').html());
+      return false;
+    }
+    jQ('#case_issue_count').text(jQ('table#issues').attr('count'));
+  };
+
+  jQ.ajax({
+    'url': '/case/' + case_id + '/issue/',
+    'type': 'GET',
+    'data': parameteres,
+    'success': function (data, textStatus, jqXHR) {
+      jQ('#issue_list').html(data);
     },
     'complete': function () {
       complete();
