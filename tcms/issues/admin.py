@@ -84,16 +84,18 @@ def save_config(request, key):
     )
 
     # Clean the projects issue types before we re-create them
-    IssueType.objects.filter(project=project).delete()
+    IssueType.deactivate_project_issues(project=project)
 
     for issue in issue_types_json:
         issue = ast.literal_eval(issue)
-        IssueType.objects.get_or_create(
+        issue, created = IssueType.objects.get_or_create(
             project=project,
             name=issue['name'],
             jid=issue['id'],
             icon_url=issue['iconUrl']
         )
+        issue.active = True
+        issue.save()
 
     django_rq.enqueue(sync_issues, project)
     return redirect('admin:project-list')

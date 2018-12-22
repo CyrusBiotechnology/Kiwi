@@ -10,6 +10,11 @@ from .models import Issue
 @atlassian_authenticated
 @login_not_required
 def issue_linked_test_cases(request):
+    """
+    View that gets rendered in the Jira issues page.  Displays a table of all test cases for a given Jira issue.
+    :param request:
+    :return:
+    """
     jira_key = request.GET.get('issueKey')
     issue = Issue.objects.get(jira_key=jira_key)
     cases = issue.test_cases.all()
