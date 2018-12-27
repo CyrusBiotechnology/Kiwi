@@ -34,10 +34,10 @@ class IssueType(models.Model):
 
 class Issue(models.Model):
     jid = models.IntegerField()
-    link = models.CharField(max_length=255)
+    link = models.TextField()
     jira_key = models.CharField(max_length=10)
     fixVersions = models.CharField(max_length=255)
-    summary = models.CharField(max_length=255)
+    summary = models.TextField()
     assignee = models.CharField(max_length=255, null=True)
     issue_type = models.ForeignKey(IssueType, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
