@@ -41,7 +41,6 @@ def sync_issues(project):
     for issue in issues:
         total += total
         logger.debug(issue)
-        project = Project.objects.get(key=issue['fields']['project']['key'])
         issue_type = None
         try:
             issue_type = IssueType.objects.get(
