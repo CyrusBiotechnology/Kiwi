@@ -38,7 +38,7 @@ class Issue(models.Model):
     jira_key = models.CharField(max_length=10)
     fixVersions = models.TextField()
     summary = models.TextField()
-    assignee = models.TextField()
+    assignee = models.TextField(default=None)
     issue_type = models.ForeignKey(IssueType, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     iss_updated = models.DateTimeField(editable=True)
