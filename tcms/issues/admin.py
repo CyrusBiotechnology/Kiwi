@@ -97,5 +97,6 @@ def save_config(request, key):
         issue.active = True
         issue.save()
 
-    django_rq.enqueue(sync_issues, project)
+    queue = django_rq.get_queue('default', is_async=True, autocommit=True, default_timeout=1200)
+    queue.enqueue(sync_issues, project)
     return redirect('admin:project-list')
