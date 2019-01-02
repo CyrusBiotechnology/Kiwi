@@ -397,7 +397,7 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['k8s'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
         },
         'kiwi.xmlrpc': {

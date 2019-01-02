@@ -32,7 +32,7 @@ def sync_issues(project):
         "maxResults": 20,
         "fieldsByKeys": False
     }
-    logger.debug(payload)
+    logger.info(payload)
     issues = requests.post_paginated('/rest/api/2/search', json=payload)
 
     total = 0
@@ -40,7 +40,7 @@ def sync_issues(project):
     failed = 0
     for issue in issues:
         total += total
-        logger.debug(issue)
+        logger.info(issue)
         issue_type = None
         try:
             issue_type = IssueType.objects.get(
