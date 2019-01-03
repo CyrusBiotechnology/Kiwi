@@ -97,6 +97,8 @@ def save_config(request, key):
         issue.active = True
         issue.save()
 
-    queue = django_rq.get_queue('default', is_async=True, autocommit=True, default_timeout=1200)
+    # We are rate limited at 500 requests per 5 minutes.   Allow this task to run long enough to scan all the issues
+    timeout = 60 * 90
+    queue = django_rq.get_queue('default', is_async=True, autocommit=True, default_timeout=timeout)
     queue.enqueue(sync_issues, project)
     return redirect('admin:project-list')
