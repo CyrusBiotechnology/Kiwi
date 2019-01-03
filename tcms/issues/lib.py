@@ -38,7 +38,7 @@ def sync_issues(project):
     saved = 0
     failed = 0
     for issue in issues:
-        total += total
+        total += 1
         issue_type = None
         try:
             issue_type = IssueType.objects.get(
@@ -62,9 +62,9 @@ def sync_issues(project):
                 iss_created=parser.parse(issue['fields']['created']),
             )
             logging.info('Issue {0} created'.format(req.jira_key))
-            saved += saved
+            saved += 1
         except DataError as err:
-            failed += failed
+            failed += 1
             logger.error('DataError: {0}'.format(err))
         logger.info('Processed {0} issues'.format(total))
 
