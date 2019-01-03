@@ -17,6 +17,6 @@ django-slack
 rq==0.12.0
 redis==2.10.6
 django-rq
-dacc==0.0.6.dev1
+dacc==0.0.6.dev2
 python-dateutil
 django-adminplus
