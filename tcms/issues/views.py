@@ -4,6 +4,9 @@ from django.contrib.sites.models import Site
 from dacc.authentication.auth import atlassian_authenticated
 from global_login_required import login_not_required
 from .models import Issue
+import logging
+
+logger = logging.getLogger('django')
 
 
 @xframe_options_exempt
@@ -16,16 +19,24 @@ def issue_linked_test_cases(request):
     :return:
     """
     jira_key = request.GET.get('issueKey')
+
     issue = Issue.objects.get(jira_key=jira_key)
-    cases = issue.test_cases.all()
     site_url = Site.objects.get_current().domain
     context = {'cases': [], 'site_url': site_url}
-    for case in cases:
-        last_run = case.case_run.latest('case_run_id')
-        case_data = {
-            'case': case,
-            'run': last_run,
-        }
-        context['cases'].append(case_data)
+    if not issue:
+        logger.info('Issue not found in query params: {0}'.format(request.GET))
+    else:
+        cases = issue.test_cases.all()
+        for case in cases:
+            try:
+                last_run = case.case_run.latest('case_run_id')
+            except Exception:
+                # Quick fix in the event there is no case run
+                last_run = {'case_run_id': 'None', 'case_run_status': 'N/A'}
+            case_data = {
+                'case': case,
+                'run': last_run,
+            }
+            context['cases'].append(case_data)
 
     return render(request, 'issues/testcase_table.html', context=context)
