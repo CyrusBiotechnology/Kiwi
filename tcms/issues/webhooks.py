@@ -88,5 +88,5 @@ def _save_issue(issue):
 
 
 register(create_issue, 'jira:issue_created')
-register(update_issue,'jira:issue_updated')
+register(update_issue, 'jira:issue_updated')
 register(delete_issue, 'jira:issue_deleted')
