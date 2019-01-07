@@ -16,7 +16,11 @@
 		<td>{{ issue.jira_key }}</td>
 		<td>{{ issue.summary }}</td>
 		<td><a href="{{ issue.get_human_url }}">{{ issue.get_human_url }}</a></td>
-        <td>{{ issue.fixVersions }}</td>
+        <td>
+            {% for version in issue.fixVersions %}
+                Name: {{ version.name }},
+            {% endfor %}
+        </td>
         <td>
 			<a class="remove js-remove-issue" data-params='{"id": "{{ issue.jid }}", "caseId": "{{ test_case.pk }}"}'>Remove</a>
 		</td>
