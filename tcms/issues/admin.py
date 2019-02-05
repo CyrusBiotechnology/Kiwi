@@ -84,16 +84,21 @@ def save_config(request, key):
     )
 
     # Clean the projects issue types before we re-create them
-    IssueType.objects.filter(project=project).delete()
+    IssueType.deactivate_project_issues(project=project)
 
     for issue in issue_types_json:
         issue = ast.literal_eval(issue)
-        IssueType.objects.get_or_create(
+        issue, created = IssueType.objects.get_or_create(
             project=project,
             name=issue['name'],
             jid=issue['id'],
             icon_url=issue['iconUrl']
         )
+        issue.active = True
+        issue.save()
 
-    django_rq.enqueue(sync_issues, project)
+    # We are rate limited at 500 requests per 5 minutes.   Allow this task to run long enough to scan all the issues
+    timeout = 60 * 90
+    queue = django_rq.get_queue('default', is_async=True, autocommit=True, default_timeout=timeout)
+    queue.enqueue(sync_issues, project)
     return redirect('admin:project-list')

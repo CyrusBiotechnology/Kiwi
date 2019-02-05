@@ -8,6 +8,7 @@ class IssuesConfig(AppConfig):
         from dacc.registration.descriptor import Descriptor
         from django.urls import reverse
         from tcms.issues import webhooks
+        from .models import IssueType, Issue
 
         descriptor = Descriptor(
             'KiwiJira',

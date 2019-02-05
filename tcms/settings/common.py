@@ -369,7 +369,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -393,12 +393,12 @@ LOGGING = {
         'django': {
             'handlers': ['k8s'],
             'level': 'INFO',
-            'propagate': True
+            'propagate': False
         },
         'django.request': {
             'handlers': ['k8s'],
-            'level': 'ERROR',
-            'propagate': True,
+            'level': 'INFO',
+            'propagate': False,
         },
         'kiwi.xmlrpc': {
             'handlers': ['xmlrpc'],

@@ -16,6 +16,14 @@ class IssueType(models.Model):
     name = models.CharField(max_length=50)
     jid = models.IntegerField()
     icon_url = models.CharField(max_length=250)
+    active = models.BooleanField(default=False)
+
+    @classmethod
+    def deactivate_project_issues(cls, project):
+        issue_types = cls.objects.filter(project=project)
+        for issue_type in issue_types:
+            issue_type.active = False
+            issue_type.save()
 
     def __str__(self):
         return self.name
@@ -26,11 +34,11 @@ class IssueType(models.Model):
 
 class Issue(models.Model):
     jid = models.IntegerField()
-    link = models.CharField(max_length=255)
+    link = models.TextField()
     jira_key = models.CharField(max_length=10)
-    fixVersions = models.CharField(max_length=100)
-    summary = models.CharField(max_length=255)
-    assignee = models.CharField(max_length=100, null=True)
+    fixVersions = models.TextField()
+    summary = models.TextField()
+    assignee = models.TextField(null=True)
     issue_type = models.ForeignKey(IssueType, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     iss_updated = models.DateTimeField(editable=True)
