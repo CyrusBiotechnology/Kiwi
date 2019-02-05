@@ -11,7 +11,9 @@ from .models import Issue
 @login_not_required
 def issue_linked_test_cases(request):
     jira_key = request.GET.get('issueKey')
-    issue = Issue.objects.get(jira_key=jira_key)
+    issue = Issue.objects.filter(jira_key=jira_key)
+    if not issue:
+        return render(request, 'issues/issue_not_found.html')
     cases = issue.test_cases.all()
     site_url = Site.objects.get_current().domain
     context = {'cases': [], 'site_url': site_url}
