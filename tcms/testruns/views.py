@@ -39,6 +39,7 @@ from tcms.testruns.forms import NewRunForm, SearchRunForm, BaseRunForm
 from tcms.testruns.models import TestRun, TestCaseRun, TestCaseRunStatus, EnvRunValueMap
 from tcms.issuetracker.types import IssueTrackerType
 from django_slack import slack_message
+from django_slack.exceptions import InvalidAuth
 from django.contrib.sites.models import Site
 import logging
 
@@ -947,12 +948,14 @@ class UpdateAssigneeView(View):
             test_case_run.assignee = user
             test_case_run.save()
             site = Site.objects.get_current()
-
-            slack_message('slack/updated_testcaserun_assignee.slack',
-                          {
-                              'tc_run': test_case_run,
-                              'site': site,
-                           })
+            try:
+                slack_message('slack/updated_testcaserun_assignee.slack',
+                              {
+                                  'tc_run': test_case_run,
+                                  'site': site,
+                               })
+            except InvalidAuth:
+                logger.error("Invalid Slack authentication, no messages will be sent")
             return redirect('testruns-get', run_id=test_case_run.run_id)
 
         for caserun_pk in object_ids:
