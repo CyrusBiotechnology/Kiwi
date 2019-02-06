@@ -19,10 +19,9 @@ def issue_linked_test_cases(request):
     :return:
     """
     jira_key = request.GET.get('issueKey')
-    issue = Issue.objects.filter(jira_key=jira_key)
+    issue = Issue.objects.filter(jira_key=jira_key).first()
     if not issue:
         return render(request, 'issues/issue_not_found.html')
-
     else:
         site_url = Site.objects.get_current().domain
         context = {'cases': [], 'site_url': site_url}
